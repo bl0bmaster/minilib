@@ -1,0 +1,21 @@
+{
+  "name": "readable",
+  "version": "1.0.0",
+  "description": "",
+  "main": "markdown.js",
+  "dependencies": {
+    "terser": "^4.4.0",
+    "terser-webpack-plugin": "^2.2.1",
+    "webpack": "^4.41.2",
+    "yargs": "^15.0.2"
+  },
+  "devDependencies": {
+    "webpack-cli": "^3.3.10"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

@@ -1,0 +1,8 @@
+/node_modules/
+/.project
+/minilib.min.js
+/minilight.min.js
+/minimark.min.js
+/.settings
+/blog/*
+/minified/*

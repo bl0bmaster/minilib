@@ -1,0 +1,6 @@
+./node_modules/terser/bin/terser --ecma 6 --quote_style=0 --compress --mangle --toplevel  -- minilib.js   > minified/minilib.js
+./node_modules/terser/bin/terser --ecma 6 --quote_style=0 --compress --mangle --toplevel  -- minilight.js   > minified/minilight.js
+./node_modules/terser/bin/terser --ecma 6 --quote_style=0 --compress --mangle --toplevel  -- minimark.js   > minified/minimark.js
+./node_modules/terser/bin/terser --ecma 6 --quote_style=0 --compress --mangle --toplevel  -- miniblog.js   > minified/miniblog.js
+./node_modules/terser/bin/terser --ecma 6 --quote_style=0 --compress --mangle --toplevel  -- miniget.js   > minified/miniget.js
+./node_modules/terser/bin/terser --ecma 6 --quote_style=0 --compress --mangle --toplevel  -- minicommons.js   > minified/minicommons.js
