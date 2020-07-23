@@ -28,4 +28,6 @@ Le tout fait moins de **10ko**. *Qui dit mieux ?*.
 ## Todo
 
   * Lire d'autres répertoires que ceux de Apache.
-  * doc demo test 
+  * doc demo test
+  * un vrai build
+  * minimark en propre et tant pis pour la taille :/
