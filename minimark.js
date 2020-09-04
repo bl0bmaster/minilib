@@ -1,39 +1,27 @@
 import minilight from "./minilight.js";
-function MMStateFactory(){
-    return {
-        blockType : 'normal',
-        emptyLineBefore :false,
-        isCode :false
-    };
-}
-function mmEmptyLine(element,state){
-    state.emptyLineBefore=true;
-    return "<br />";
-}
 
-function blockTagFactory(tagName){
-    return function(element,state){
+const isEmptyLineBefore="b";
+const isCode="c";
+const wasCode="o";
+const codeBuffer="t";
+const RETURN_CHAR="\n";
+
+const blockTagFactory = (tagName) => {
+    return (element) => {
         return `<${tagName}>${element}</${tagName}>`;
     }
 }
-function previousBlockTagFactory(tagName){
-    return function(element,state,destination, ligne,index,source){
-        if( destination.length > 0){
-        	const ligneMoinsUn = destination[destination.length-1];
-            destination[destination.length-1]=`<${tagName}>${ligneMoinsUn}</${tagName}>`;
+
+const previousBlockTagFactory = (tagName) => {
+    return (element, state, destination, ligne) => {
+        if( destination.length ){
+            destination[destination.length-1]=`<${tagName}>${destination[destination.length-1]}</${tagName}>`;
         }
         return "";
     }
 }
-function identity(i,j,k,ligne){
-	return ligne;
-}
-function code( element,state,destination, ligne,index,source){
-	state.isCode = true;
-	return element;
-}
-let codeBuffer=null;
-const normalBlockTypeParser=(function(){
+
+const normalBlockTypeParser=(()=>{
     const blocksFilters =[
         [/^>/,blockTagFactory("blockquote")],
         [/^######/,blockTagFactory("h6")],
@@ -44,84 +32,62 @@ const normalBlockTypeParser=(function(){
         [/^#/,blockTagFactory("h1")],
         [/^===*$/,previousBlockTagFactory("h1")],
         [/^---*$/,previousBlockTagFactory("h2")],
-        [/^\s*$/,mmEmptyLine],
-        [/^    /,code],
-        [/^.*$/,identity],
-    ];
-    function blockFilterFilter(re,filter){
-    	return this.ligne.match(re) ;
-	}
-    function blockFilterMap(re,filter){
-        	try{
-        		let result = filter(  this.ligne.replace(re,""),
-    							this.state,
-    							this.destination,
-    							this.ligne,
-    							this.index,
-    							this.source);
-    			if( this.state.isCode && this.state.oldCodeStatus){
-    				codeBuffer.push(result);
-    				return null;
-    			}
-        		if( this.state.isCode && !this.state.oldCodeStatus){
-        			codeBuffer = []
-        			codeBuffer.push(result);
-        			return null;
-        		}
-        		if( !this.state.isCode && this.state.oldCodeStatus){
-        			codeBuffer.push(result);
-    				result = minilight( 0, codeBuffer.join("\n") );
-    				codeBuffer = [];
-        		}
-        		return result;
-        	}catch(eee){
-        		console.log(eee,re,filter);
+        [/^\s*$/,(element, state)=>{
+            	state[isEmptyLineBefore]=1;
+            	return "<br/>";
         	}
-        return null;
+        ],
+        [/^    /,(element, state)=> {
+        	state[isCode] = 1;
+        	return element;
+        }],
+        [/^.*$/, (element, state, destination, ligne) => ligne ],
+    ];
+    const blockFilterMap = (state, destination, ligne, re, filter) => {
+		let result = filter( ligne.replace(re,""), state, destination, ligne);
+		if( state[isCode] && state[wasCode]){
+			state[codeBuffer].push(result);
+			return "";
+		}
+		if( state[isCode] && !state[wasCode]){
+			state[codeBuffer] = []
+			state[codeBuffer].push(result);
+			return "";
+		}
+		if( !state[isCode] && state[wasCode]){
+			state[codeBuffer].push(result);
+			result = minilight( 0, state[codeBuffer].join(RETURN_CHAR) );
+			state[codeBuffer] = [];
+		}
+		return result;
     }
-        
-    return function(state, destination, ligne,index,source){
-        state.emptyLineBefore=false;
-    	state.oldCodeStatus=state.isCode;
-        state.isCode=false;
-        return blockFilterMap.apply({state, destination, ligne,index,source}, blocksFilters.find(
-        		(filter)=> blockFilterFilter.apply({state, destination, ligne,index,source}, filter )
-        ));
+    return (state, destination, ligne) => {
+        state[isEmptyLineBefore]=0;
+    	state[wasCode]=state[isCode];
+        state[isCode]=0;
+        return blockFilterMap(
+        			state,
+        			destination,
+        			ligne,
+        			...blocksFilters.find(
+        					(filter) => ligne.match(filter[0])
+					)
+		);
     }
 })()
-function codeBlockTypeParser(state, destination, ligne,index,source) {
-    
-}
-
-const blockTypeParser = {
-    normal : normalBlockTypeParser,
-    code : codeBlockTypeParser
-}
-
-function MMParserByReduceFactory(_state){
-    const state=_state;
-    return function(a,e,i,t){
-        const result = blockTypeParser[state.blockType](state,a,e,i,t);
-        a.push(result);      
-        return a;
-    }
-}
-
-const cleanString = (function(){
-    const filters =[
-        [/[\c\n\r]/g,""],
-        [/\t/g,"    "],
-        [/\s/g," "],
-    ];    
-    return function (str){
-        return filter.reduce((a,e)=>a.replaceAll.apply(a,e),str);
-    };
-})()
-
 
 function minimark(outer, str){
-    const parser =  MMParserByReduceFactory(MMStateFactory());
-    outer.innerHTML = str.split("\n").reduce(parser,[]).join("\n");
+	const state = {
+        [isEmptyLineBefore] :0,
+        [isCode] :0,
+        [codeBuffer] :[]
+    };
+    const parser = (destination, ligne)=>{
+        const result = normalBlockTypeParser(state, destination, ligne);
+        destination.push(result);      
+        return destination;
+    };
+    outer.innerHTML = str.split(RETURN_CHAR).reduce(parser,[]).join(RETURN_CHAR);
 }
 
 export default minimark;

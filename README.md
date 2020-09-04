@@ -15,15 +15,14 @@ il y a les mini libs suivantes :
 Le tout fait moins de **10ko**. *Qui dit mieux ?*.
 
 	% du -s -b minified
-	9287    minified
+	8480    minified
 	% du -s -b minified/*
-	953     minified/miniblog.js
-	134     minified/minicommons.js
-	265     minified/miniget.js
-	414     minified/minilib.js
-	1918    minified/minilight.js
-	1507    minified/minimark.js
-
+    953 miniblog.js
+    134 minicommons.js
+    265 miniget.js
+    414 minilib.js
+    1778 minilight.js
+    840 minimark.js
 
 ## Todo
 
