@@ -8,8 +8,7 @@ let contenu=null;
 function read(path){
 	return new Promise(function(resolve, reject){
 		get({url:`./blog/${path}`, type :'html'}).then(function(data){
-			console.log( data );
-			resolve(query(data, "a").filter((a)=>a.getAttribute('href').indexOf( "./") == 0 ));
+			resolve(query(data, "img[alt=\\[DIR\\]]").map(e=>query(e.parentNode.parentNode,"a")[0]).filter((a)=>a.getAttribute('href').endsWith( "/") ));
 		}).catch((error) => {
 			reject(error);
 		});
@@ -17,7 +16,9 @@ function read(path){
 }
 
 function loadHash(){
-	console.log( '' );
+    if( `${window.location.href}`.indexOf('#BLOG') < 0 ){
+        return;
+    }
 	var blog = atob( `${window.location.href}`.replace(/.*#BLOG-/, '' ) );
 	if( contenu && blog ){
 		get({url:`./blog/${blog}/readme.md?${new Date().getTime()}`}).then(function(data){
@@ -38,12 +39,11 @@ function miniblog( dom,content,data){
 		minimark(dom, content);
 	}
 	if( data.role && data.role =="menu" ){
-		console.log( dom, content, data, data.role );
 		return read('').then((all)=>all.forEach((a)=> {
 			var listElement = dd.createElement("li");
 			var link = dd.createElement("a");
 			var linkValue = `#BLOG-${btoa(a.getAttribute('href'))}`;
-			var linkDesc = `${a.getAttribute('href').substr(28)}`;
+			var linkDesc = `${a.getAttribute('href')}`;
  			link.href = linkValue;
 			var linkText = dd.createTextNode( linkDesc );
 			link.appendChild( linkText );

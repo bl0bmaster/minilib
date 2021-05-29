@@ -10,7 +10,6 @@ function applyPlugin(code, func, tag){
 		e.style.display='none';
 		func(container, e.innerText,e.dataset);
 	});
-	console.log(`minilib loaded ${code}`);
 }
 
 window.addEventListener("load", ()=>{
