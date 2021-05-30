@@ -5,9 +5,14 @@ import minimark from './minimark.js';
 const dd=document;
 let contenu=null;
 
+function blogRoot(){
+    return window.BLOG_ROOT || './blog/';
+}
+
+
 function read(path){
 	return new Promise(function(resolve, reject){
-		get({url:`./blog/${path}`, type :'html'}).then(function(data){
+		get({url:`${blogRoot()}${path}`, type :'html'}).then(function(data){
 			resolve(query(data, "img[alt=\\[DIR\\]]").map(e=>query(e.parentNode.parentNode,"a")[0]).filter((a)=>a.getAttribute('href').endsWith( "/") ));
 		}).catch((error) => {
 			reject(error);
@@ -21,7 +26,7 @@ function loadHash(){
     }
 	var blog = atob( `${window.location.href}`.replace(/.*#BLOG-/, '' ) );
 	if( contenu && blog ){
-		get({url:`./blog/${blog}/readme.md?${new Date().getTime()}`}).then(function(data){
+		get({url:`${blogRoot()}${blog}/readme.md?${new Date().getTime()}`}).then(function(data){
 			if( data ){
 				minimark(contenu, data ); 
 			}
