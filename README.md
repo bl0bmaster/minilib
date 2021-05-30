@@ -30,3 +30,4 @@ Le tout fait moins de **10ko**. *Qui dit mieux ?*.
   * doc demo test
   * un vrai build
   * minimark en propre et tant pis pour la taille :/
+  * miniblog capable de lire autre chose que readme.md (README.md à minima)
